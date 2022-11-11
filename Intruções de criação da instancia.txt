@@ -1,0 +1,232 @@
+    1-Criar Instância
+    a-Preparar Ambiente cloud
+VPC: Lupa
+SubNets: deixar blocos de ip sugeridos
+Router Table: 
+Network ACL: nada a fazer
+
+
+    b-Criar instancia
+SO: Debian
+VPC: Lupa
+SubNet: publica
+SG: Tudo Liberado
+key pair: Debian
+
+userdata:
+#!/bin/bash
+sudo apt update
+sudo apt-get install build-essential -y
+sudo apt-get install libncurses5-dev libncursesw5-dev libreadline6-dev libffi-dev -y
+sudo apt-get install libbz2-dev libexpat1-dev liblzma-dev zlib1g-dev libsqlite3-dev libgdbm-dev tk8.6-dev libssl-dev openssl -y
+sudo apt-get install libboost-python-dev -y
+sudo apt-get install libpulse-dev -y
+sudo apt-get install python-dev -y
+
+após criar a instancia, testar conexão
+
+
+    2-Configurar Python
+    a-python
+
+$ mkdir python-source
+$ cd python-source
+$ wget https://www.python.org/ftp/python/3.8.13/Python-3.8.13.tgz
+$ tar zxvf Python-3.8.1.tgz
+$ cd Python-3.8.13
+$ ./configure --prefix=/usr/local/opt/python-3.8.13
+$ make
+$ sudo make install
+
+Verificar versão:
+$ /usr/local/opt/python-3.8.13/bin/python3.8 --version
+O terminal deve retornar:
+Python 3.8.13
+
+    b-Python VENV
+
+$ cd /var
+$ sudo su
+$ mkdir /var/www
+$ mkdir /var/www/lab_app/
+$ cd /var/www/lab_app/
+$ /usr/local/opt/python-3.8.13/bin/python3.8 -m venv .
+$ . bin/activate
+$ /var/www/lab_app/bin/python3.8 -m pip install --upgrade pip
+
+
+    3- nginx e flask
+
+
+Com o venv ativado:
+$ sudo su
+# apt-get install nginx
+apos instalação dicitar o endereço de ipv4 publico no browser e verificar se abre a pagina de teste do nginx
+# pip install flask
+Criar app teste do flask
+nano hello.py
+---
+from flask import Flask
+app = Flask(__name__)
+@app.route("/")
+def hello():
+  return "Hello World!"
+
+if __name__ == "__main__":
+  app.run(host='0.0.0.0', port=8080)
+---
+no browser digitar o ipv4:8080
+deve retornar a pagina com hello World
+
+
+    4-UWSGI
+
+
+# pip install uwsgi
+para checar verificar se existe o dir uwsgi no diretorio bin:
+# ls -al bin/
+
+    5-configurando nginx
+
+substituir arquivo de configuração para nginx
+# rm /etc/nginx/sites-enabled/default
+# nano lab_app_nginx.conf
+---
+server {
+    listen      80;
+    server_name localhost;
+    charset     utf-8;
+    client_max_body_size 75M;
+
+    location /static {
+        root /var/www/lab_app/;
+    }
+
+    location / { try_files $uri @labapp; }
+    location @labapp {
+        include uwsgi_params;
+        uwsgi_pass unix:/var/www/lab_app/lab_app_uwsgi.sock;
+    }
+}
+---
+criar link simbolico para o arquivo de configuração do nginx
+# ln -s /var/www/lab_app/lab_app_nginx.conf /etc/nginx/conf.d/
+Checando link simbolico
+
+# ls -al /etc/nginx/conf.d
+
+
+reiniciar nginx
+# /etc/init.d/nginx restart
+
+    6-configurando uwsgi
+
+criar novo arquivo de configuração para uwsgi
+# nano lab_app_uwsgi.ini
+---
+[uwsgi]
+#application's base folder
+base = /var/www/lab_app
+
+#python module to import
+app = hello
+module = %(app)
+
+home = %(base)
+pythonpath = %(base)
+
+#socket file's location
+socket = /var/www/lab_app/%n.sock
+
+#permissions for the socket file
+chmod-socket    = 666
+
+#the variable that holds a flask application inside the module imported at line #6
+callable = app
+
+#location of log files
+logto = /var/log/uwsgi/%n.log
+---
+
+Criar diretorio de log
+# mkdir /var/log/uwsgi
+
+testando o Ambiente
+inicializar uwsgi manualmente
+ # bin/uwsgi --ini /var/www/lab_app/lab_app_uwsgi.ini
+testar ip sem porta 8080
+
+
+criar serviço para inicializar uwsgi quando instancia for inicializada usando systemd
+# nano /etc/systemd/system/emperor.uwsgi.service
+---
+[Unit]
+Description=uWSGI Emperor
+After=syslog.target
+
+[Service]
+ExecStart=/var/www/lab_app/bin/uwsgi --ini /var/www/lab_app/lab_app_uwsgi.ini
+# Requires systemd version 211 or newer
+RuntimeDirectory=uwsgi
+Restart=always
+KillSignal=SIGQUIT
+Type=notify
+StandardError=syslog
+NotifyAccess=all
+
+[Install]
+WantedBy=multi-user.target
+---
+
+iniciar serviço
+# systemctl start emperor.uwsgi.service
+checar serviço
+# systemctl status emperor.uwsgi.service
+Habilitar serviço boot da instancia
+# systemctl enable emperor.uwsgi.service
+
+    7-Testando reincialização da Instancia
+
+    8-configurando transferencia de arquivos
+
+$ cd /var/www/lab_app
+$ sudo chmod -R 777 /var/www/
+
+    9-Criar estrutura do front-Endereço
+
+rever aulas 
+criar pastas static e templates
+reiniciar uwsgi application
+# systemctl restart emperor.uwsgi.service
+
+    10-debungin
+
+# tail -n 100 /var/log/uwsgi/lab_app_uwsgi.log
+
+
+
+--------------------------------------------------
+
+
+
+Atenção ao IP utilizado: Endereço IPv4 público
+(lab_app) root@ip-10-1-104-74:/var/www/lab_app#  nano /etc/systemd/system/emperor.uwsgi
+---
+[Unit]
+Description=uWSGI Emperor
+After=syslog.target
+
+[Service]
+ExecStart=/var/www/lab_app/bin/uwsgi --ini /var/www/lab_app/lab_app_uwsgi.ini
+# Requires systemd version 211 or newer
+RuntimeDirectory=uwsgi
+Restart=always
+KillSignal=SIGQUIT
+Type=notify
+StandardError=syslog
+NotifyAccess=all
+
+[Install]
+WantedBy=multi-user.target
+---
+(lab_app) root@ip-10-1-104-74:/var/www/lab_app#  systemctl start emperor.uwsgi.service

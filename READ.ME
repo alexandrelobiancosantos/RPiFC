@@ -1,0 +1,67 @@
+Project Name: MyLab
+Author: Alexandre Lo Bianco
+Date: 08/11/2022
+Resumo: Toma como base o projeto Raspberry Pi FullStack_Raspbian [1] e implementa melhorias seguindo as melhores praticas da cultura DevOps.
+Lista de melhorias
+
+Topicos
+Raspberry, Phython(flask), MySQL, NGINX, UWSGI, HTML, CSS, AWS, EC2, RDS, codecommit, codedeploy, codebuild, Zabbix, Grafana.
+
+
+Banco de dados MySQL externo ao Raspberry Pi
+    - Unifica as tabelas de monitoramento do sensor DHT-11 de umidade e temperatura em uma unica tabela chamada enviroment.
+    - Banco de dados no notebook atraves do MySQL Workbench.
+    - Banco de dados em alta disponibilidade na AWS
+
+
+Adicionar shields
+    - As alterações referentes asos sensores e shields devem ser implementas seguindo as Boas Praticas da Cultura DevOps, i.e. devem seguir o fluxo de automação git, codecommit, code deploy,
+
+Colocar o projeto no ar
+    - Dominio
+    - DNS
+    - 
+
+Tela de login para cadastro de usuários
+
+Shields
+    - MQ-2 - Methane, Butane, LPG, smoke.
+    - MQ-3 - Alcohol, Ethanol, smoke.
+    - MQ-4 - Methane, CNG Gas.
+    - MQ-5 - Natural gas, LPG.
+    - MQ-6 - LPG, butane gas.
+    - MQ-7 - Carbon Monoxide.
+    - MQ-8 - Hydrogen Gas.
+    - MQ-9 - Carbon Monoxide, flammable gasses
+    - MH Z19B - Infrared CO2 Sensor Module
+    - contador (coco legal)
+    - Camera implementa
+    - ...
+
+
+CRONOGRAMA DE PROJETO
+-Instancia com nginx, uwsgi e flask
+-Espelhar front-end na instancia
+-Criar Banco de dados local no servidor
+-Criar unica planilha com dados de data, temperatura e umidade.
+-Salvar no bando de dados
+-Ler do banco de dados
+-
+
+
+REFERENCIAS
+Peter Dalmaris. Raspberry Pi Peter Dalmaris
+tabela de versoes de pacotes em :
+https://docs.google.com/spreadsheets/d/1JlKwQrGSAs_SXQKOfYL21cMNM8y2FXh65U8MvyaiNX4/edit#gid=0
+
+
+Step-by-step visual guide on deploying a Flask application on AWS EC2
+https://medium.com/techfront/step-by-step-visual-guide-on-deploying-a-flask-application-on-aws-ec2-8e3e8b82c4f7
+
+MQ-#: https://github.com/tutRPi/Raspberry-Pi-Gas-Sensor-MQ/blob/master/README.md
+
+MH Z19B: https://pypi.org/project/mh-z19/
+
+
+
+
