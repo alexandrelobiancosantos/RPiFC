@@ -1,0 +1,35 @@
+FASE 1 - Ambiente da AWS
+
+1-Criar ambiente na always
+2-Instalar Python na instancia
+3-Criar VENV na instancia
+4-No VENV instalar Python, flask, nginx e uwsgi
+5-Preparar front-end
+6-Criar imagem da instância
+
+FASE 2 - Escrever Banco de dados
+
+1-Criar banco de dados MySQL no servidor local
+2-Criar tabela unica com dados de tempo, sensor, temperatura e humidade
+3-Criar script python para salvar leituras no banco de dados local
+4-Criar banco de dados MySQL na AWS
+5-Criar tabela unica com dados de tempo, sensor, temperatura e humidade
+6-Criar script python para salvar leituras no banco de dados da AWS
+7-criar banco de dados sqlite3 no Raspberry
+8-Criar tabela unica com dados de tempo, sensor, temperatura e humidade
+9-Criar script unico de log que se houver falha na conexão com o Banco de dados MySQL (local ou AWS), grava os dados no sqlite do Raspberry.
+
+FASE 3 - Ler do Banco de dados
+1-Editar script para ler as informações do banco de dados MySQL
+
+
+
+FASE 4 - Implementar DevOps
+
+Codecommit
+Codedeploy
+Fechar o ciclo de atualização seguindo as boas praticas do DevOps
+
+FASE 5 - Iniciar ciclo de melhorias no front-end
+
+FASE 6 - DISPONIBILIZAR NO CURRICULO
